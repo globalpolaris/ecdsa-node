@@ -1,7 +1,6 @@
 import { secp256k1 } from "ethereum-cryptography/secp256k1";
 import { toHex } from "ethereum-cryptography/utils";
 import { useEffect, useState } from "react";
-import { keccak256 } from "ethereum-cryptography/keccak";
 import server from "./server";
 
 export default function Key({ allWallet, setAllWallet, getAddress }) {
@@ -55,16 +54,16 @@ export default function Key({ allWallet, setAllWallet, getAddress }) {
       <div className="info">
         {allWallet.length > 0
           ? allWallet.map((wallet, i) => {
-              return (
-                <div key={wallet.address} className="wallet-info">
-                  <p className="w-detail">Wallet #{(i += 1)}</p>
-                  <p className="">Address: {wallet.address}</p>
-                  <p className="">Balance: {wallet.balance}</p>
-                  <p className="">Private Key: {wallet.privateKey}</p>
-                  <p className="">Public Key: {wallet.publicKey}</p>
-                </div>
-              );
-            })
+            return (
+              <div key={wallet.address} className="wallet-info">
+                <p className="w-detail">Wallet #{(i += 1)}</p>
+                <p className="">Address: {wallet.address}</p>
+                <p className="">Balance: {wallet.balance}</p>
+                <p className="">Private Key: {wallet.privateKey}</p>
+                <p className="">Public Key: {wallet.publicKey}</p>
+              </div>
+            );
+          })
           : null}
         {/* Private Key: {privateKey === null ? null : "0x" + privateKey}
         <br />

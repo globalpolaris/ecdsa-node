@@ -3,6 +3,7 @@ import Transfer from "./Transfer";
 import "./App.scss";
 import { useState } from "react";
 import Key from "./Key";
+import { keccak256 } from "ethereum-cryptography/keccak";
 
 function App() {
   const [balance, setBalance] = useState(0);
