@@ -1,7 +1,15 @@
 import server from "./server";
 
-function Wallet({ address, setAddress, balance, setBalance }) {
+function Wallet({
+  address,
+  setAddress,
+  balance,
+  setBalance,
+  allWallet,
+  setAllWallet,
+}) {
   async function onChange(evt) {
+    console.log(allWallet);
     const address = evt.target.value;
     setAddress(address);
     if (address) {
@@ -19,8 +27,17 @@ function Wallet({ address, setAddress, balance, setBalance }) {
       <h1>Your Wallet</h1>
 
       <label>
-        Wallet Address
-        <input placeholder="Type an address, for example: 0x1" value={address} onChange={onChange}></input>
+        Send from
+        <select onChange={onChange}>
+          <option value="">Select wallet</option>
+          {allWallet.map((w) => {
+            return (
+              <option value={w.address}>
+                0x{w.publicKey.slice(0, 10)}...{w.publicKey.slice(-10)}
+              </option>
+            );
+          })}
+        </select>
       </label>
 
       <div className="balance">Balance: {balance}</div>

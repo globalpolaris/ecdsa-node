@@ -1,7 +1,7 @@
 import { useState } from "react";
 import server from "./server";
 
-function Transfer({ address, setBalance }) {
+function Transfer({ address, setBalance, allWallet, getAddress }) {
   const [sendAmount, setSendAmount] = useState("");
   const [recipient, setRecipient] = useState("");
 
@@ -29,7 +29,7 @@ function Transfer({ address, setBalance }) {
       <h1>Send Transaction</h1>
 
       <label>
-        Send Amount
+        Amount
         <input
           placeholder="1, 2, 3..."
           value={sendAmount}
@@ -38,12 +38,17 @@ function Transfer({ address, setBalance }) {
       </label>
 
       <label>
-        Recipient
-        <input
-          placeholder="Type an address, for example: 0x2"
-          value={recipient}
-          onChange={setValue(setRecipient)}
-        ></input>
+        Send to
+        <select onChange={setValue}>
+          <option value="">Select wallet</option>
+          {allWallet.map((w) => {
+            return (
+              <option value={w.address}>
+                0x{w.publicKey.slice(0, 10)}...{w.publicKey.slice(-10)}
+              </option>
+            );
+          })}
+        </select>
       </label>
 
       <input type="submit" className="button" value="Transfer" />
