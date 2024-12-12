@@ -18,34 +18,35 @@ function Transfer({ address, setBalance, allWallet, getAddress }) {
     let hash = hashTransaction(trx);
     const signature = secp256k1.sign(hash, privateKey);
     return {
-      r: signature.r,
-      s: signature.s,
-      recoveryBit: signature.recovery,
-      hash: hash,
+      signature,
+      hash,
     };
   }
-
+  BigInt.prototype.toJSON = function () {
+    return Number(this);
+  };
   async function transfer(evt) {
     evt.preventDefault();
     const privateKey = prompt("Enter your private key");
     try {
       console.log(recipient, sendAmount);
-      const recipientAddr = getAddress(utf8ToBytes(recipient));
+      // const recipientAddr = getAddress(utf8ToBytes(recipient));
       const transaction = {
         sender: address,
-        recipient: recipientAddr,
+        recipient: recipient,
         amount: sendAmount,
       };
-      const signed = signTranscation(JSON.stringify(transaction), privateKey);
+      const { signature, hash } = signTranscation(
+        JSON.stringify(transaction),
+        privateKey
+      );
       const payload = {
         transaction,
-        signature: {
-          r: signed.r,
-          s: signed.s,
-          recoveryBit: signed.recoveryBit,
-        },
-        hash: signed.hash,
+        signature: signature.toDERHex(),
+        hash: toHex(hash),
+        recoveryBit: signature.recovery,
       };
+      console.log("SIG:", payload);
       const res = await server.post(`send`, payload);
       console.log(res);
     } catch (ex) {
@@ -72,7 +73,7 @@ function Transfer({ address, setBalance, allWallet, getAddress }) {
           <option>Select wallet</option>
           {allWallet.map((w) => {
             return (
-              <option value={w.address}>
+              <option value={w.publicKey}>
                 0x{w.publicKey.slice(0, 10)}...{w.publicKey.slice(-10)}
               </option>
             );

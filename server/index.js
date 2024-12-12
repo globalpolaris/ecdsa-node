@@ -4,6 +4,12 @@ const cors = require("cors");
 const port = 3042;
 
 const { secp256k1 } = require("ethereum-cryptography/secp256k1.js");
+const {
+  toHex,
+  utf8ToBytes,
+  hexToBytes,
+} = require("ethereum-cryptography/utils.js");
+const { keccak256 } = require("ethereum-cryptography/keccak.js");
 app.use(cors());
 app.use(express.json());
 
@@ -15,18 +21,56 @@ const balances = {
 
 const wallet = [];
 
+const getAddress = (publicKey) => {
+  const pubKeyBytes = hexToBytes(publicKey);
+  const hash = keccak256(pubKeyBytes.slice(1));
+  return hash.slice(-20);
+};
+
 app.get("/balance/:address", (req, res) => {
   const { address } = req.params;
-  const findWalletIdx = wallet.findIndex((w) => w.address === address);
+  const addr = getAddress(address);
+  const findWalletIdx = wallet.findIndex((w) => w.address === toHex(addr));
   const balance = wallet[findWalletIdx].balance;
   res.send({ balance });
 });
 
 app.post("/send", (req, res) => {
-  const { transaction, signature, hash } = req.body;
+  const { transaction, signature, hash, recoveryBit } = req.body;
   // jsonData = JSON.parse(body);
-  console.log(transaction, signature, hash);
-  const recoverPublicKey = secp.recoverPublicKey;
+  // let sig = {
+  //   r: BigInt(signature.r),
+  //   s: BigInt(signature.s),
+  //   recoveryBit: signature.recovery,
+  // };
+  const recalculatedHash = keccak256(utf8ToBytes(JSON.stringify(transaction)));
+  if (toHex(recalculatedHash) !== hash) {
+    return res.status(400).send("Invalid hash");
+  }
+  let sig = secp256k1.Signature.fromDER(signature);
+  sig = sig.addRecoveryBit(recoveryBit);
+  let hashBytes = hexToBytes(hash);
+  const pubKey = toHex(sig.recoverPublicKey(hashBytes).toRawBytes());
+  if (transaction.sender !== pubKey) {
+    return res.status(400).send("Invalid sender public key");
+  }
+
+  console.log("Transaction is valid!");
+  const senderWallet = getAddress(transaction.sender);
+  const receiverWallet = getAddress(transaction.recipient);
+  const findSenderWallet = wallet.findIndex(
+    (w) => w.address === toHex(senderWallet)
+  );
+  const findReceiverWallet = wallet.findIndex(
+    (w) => w.address === toHex(receiverWallet)
+  );
+  console.log(findSenderWallet, findReceiverWallet);
+  if (findSenderWallet === -1 || findReceiverWallet === -1) {
+    return res.status(400).send("Invalid wallet address");
+  }
+  wallet[findSenderWallet].balance -= Number(transaction.amount);
+  wallet[findReceiverWallet].balance += Number(transaction.amount);
+  console.log("All wallet:", wallet);
   res.send("Success!");
 });
 

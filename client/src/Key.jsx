@@ -35,6 +35,7 @@ export default function Key({ allWallet, setAllWallet, getAddress }) {
       const privKey = secp256k1.utils.randomPrivateKey();
       const pubKey = secp256k1.getPublicKey(privKey);
       const address = getAddress(pubKey);
+      console.log("Pubkey FE,", pubKey);
       // setWallet(address);
       // setPrivateKey(toHex(privKey));
       // setPublicKey(toHex(pubKey));
@@ -54,16 +55,16 @@ export default function Key({ allWallet, setAllWallet, getAddress }) {
       <div className="info">
         {allWallet.length > 0
           ? allWallet.map((wallet, i) => {
-            return (
-              <div key={wallet.address} className="wallet-info">
-                <p className="w-detail">Wallet #{(i += 1)}</p>
-                <p className="">Address: {wallet.address}</p>
-                <p className="">Balance: {wallet.balance}</p>
-                <p className="">Private Key: {wallet.privateKey}</p>
-                <p className="">Public Key: {wallet.publicKey}</p>
-              </div>
-            );
-          })
+              return (
+                <div key={wallet.address} className="wallet-info">
+                  <p className="w-detail">Wallet #{(i += 1)}</p>
+                  <p className="">Address: {wallet.address}</p>
+                  <p className="">Balance: {wallet.balance}</p>
+                  <p className="">Private Key: {wallet.privateKey}</p>
+                  <p className="">Public Key: {wallet.publicKey}</p>
+                </div>
+              );
+            })
           : null}
         {/* Private Key: {privateKey === null ? null : "0x" + privateKey}
         <br />

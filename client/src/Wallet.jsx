@@ -32,7 +32,7 @@ function Wallet({
           <option value="">Select wallet</option>
           {allWallet.map((w) => {
             return (
-              <option value={w.address}>
+              <option value={w.publicKey}>
                 0x{w.publicKey.slice(0, 10)}...{w.publicKey.slice(-10)}
               </option>
             );
